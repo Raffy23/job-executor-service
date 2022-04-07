@@ -8,8 +8,8 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/golang/mock v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/keptn/go-utils v0.12.0
-	github.com/keptn/kubernetes-utils v0.12.0
+	github.com/keptn/go-utils v0.13.0
+	github.com/keptn/kubernetes-utils v0.13.0
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v2 v2.4.0
@@ -39,7 +39,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/go-logr/logr v1.2.0 // indirect
-	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
