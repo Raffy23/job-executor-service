@@ -1,14 +1,14 @@
 replicaCount: 1
 
 image:
-  repository: docker.io/keptncontrib/job-executor-service
+  repository: docker.io/raffy23/job-executor-service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 jobexecutorserviceinitcontainer:
   image:
-    repository: docker.io/keptncontrib/job-executor-service-initcontainer # Container Image Name
+    repository: docker.io/raffy23/job-executor-service-initcontainer # Container Image Name
     tag: ""                                                               # Container Tag
 
 distributor:
