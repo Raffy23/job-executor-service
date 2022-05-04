@@ -55,6 +55,10 @@ jobs:
       - name: Install and start K3s
         run: curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -
 
+      - name: Fail version 0.12
+        if: ${{ matrix.keptn-version == '0.12.6' }}
+        run: exit 1
+
       - name: Install Keptn
         id: install_keptn
         uses: keptn-sandbox/action-install-keptn@v1.0.0
@@ -167,14 +171,17 @@ jobs:
               
               const keptnVersion = keptnVersionRegex.exec(fileName)[1];
               const testResults = ndJsonParser(platformReportFile);
-            
+              console.log(JSON.stringify(testResults))
+              
               keptnVersionCount++;
               
               testResults.forEach(testResult => {
             
                 if (testResult.Test !== undefined && (testResult.Action === "pass" || testResult.Action === "fail" || testResult.Action ===  "skip")) {
+                  console.log(JSON.stringify(testResult))
+                  
                   // Strip Test prefix from the name of the test
-                  name = testResult.Test.substring(4)
+                  name = testResult.Test
 
                   // For the markdown version we transpose the table layout such that tests are listed in rows and the 
                   // Keptn version are in the columns:
@@ -194,6 +201,7 @@ jobs:
             });
             
             transposedTable = Object.values(transposedTable)
+            console.log(JSON.stringify(transposedTable))
 
             let columns = [{ align: "left" }];
             for(let i = 0; i < keptnVersionCount; i++){ 
