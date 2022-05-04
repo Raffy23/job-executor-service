@@ -85,7 +85,10 @@ jobs:
 
       - name: Run Integration tests
         run: |
-          TEST_OUTPUT=$(go test ./test/e2e/... -json | jq -c --argjson actionList '["pass","fail","skip"]' 'select(any(.Action == $actionList[]; .) and .Test != null)')
+          GO_TEST_OUTPUT=$(go test ./test/e2e/... -json)
+          
+          echo "$GO_TEST_OUTPUT"
+          TEST_OUTPUT = $(echo "$GO_TEST_OUTPUT" | jq -c --argjson actionList '["pass","fail","skip"]' 'select(any(.Action == $actionList[]; .) and .Test != null)')
           
           echo "$TEST_OUTPUT" > $TEST_REPORT_FILENAME
           echo "Test Report: "
