@@ -138,7 +138,6 @@ jobs:
         env:
           TEST_REPORTS_PATH: ${{ env.TEST_REPORTS_PATH }}
           FINAL_TEST_REPORTS_FOLDER: ${{ env.FINAL_TEST_REPORTS_FOLDER }}
-          FINAL_TEST_REPORT_FILEPATH_JSON: ${{ env.FINAL_TEST_REPORT_FILEPATH_JSON }}
           FINAL_TEST_REPORT_FILEPATH_MARKDOWN: ${{ env.FINAL_TEST_REPORT_FILEPATH_MARKDOWN }}
         with:
           result-encoding: string
@@ -148,12 +147,10 @@ jobs:
             fs = require('fs');
 
             const {TEST_REPORTS_PATH, 
-                   FINAL_TEST_REPORT_FILEPATH_JSON, 
                    FINAL_TEST_REPORT_FILEPATH_MARKDOWN,
                    FINAL_TEST_REPORTS_FOLDER
                   } = process.env
 
-            const jsonReportData = [];
             const markdownReportData = [];
             
             let transposedTable = {};
@@ -161,6 +158,8 @@ jobs:
             const keptnVersionRegex = /test-report-\d+-(.*).json/;
             
             const fileList = fs.readdirSync(TEST_REPORTS_PATH);
+            let keptnVersionCount = 0;
+            
             fileList.forEach(fileName => {
               console.log(`Reading file: ${fileName}`);
               
@@ -169,14 +168,14 @@ jobs:
               const keptnVersion = keptnVersionRegex.exec(fileName)[1];
               const testResults = ndJsonParser(platformReportFile);
             
-              let jsonResultObject = {keptn_version: keptnVersion};
+              keptnVersionCount++;
+              
               testResults.forEach(testResult => {
             
                 if (testResult.Test !== undefined && (testResult.Action === "pass" || testResult.Action === "fail" || testResult.Action ===  "skip")) {
                   // Strip Test prefix from the name of the test
                   name = testResult.Test.substring(4)
-                  jsonResultObject[name] = testResult.Action;
-              
+
                   // For the markdown version we transpose the table layout such that tests are listed in rows and the 
                   // Keptn version are in the columns:
                   if (transposedTable[name] === undefined) {
@@ -192,29 +191,19 @@ jobs:
                 }
             
               });
-            
-              jsonReportData.push(jsonResultObject);
             });
             
             transposedTable = Object.values(transposedTable)
-            const maxColumns = jsonReportData.length;
+
             let columns = [{ align: "left" }];
-            for(let i = 0; i < maxColumns; i++){ 
+            for(let i = 0; i < keptnVersionCount; i++){ 
               columns.push({ align: "center" });
             }
-            
+    
             const markdownReport = tablemark(transposedTable, {caseHeaders: false, columns: columns});
             
             fs.mkdirSync(FINAL_TEST_REPORTS_FOLDER);
-            fs.writeFileSync(FINAL_TEST_REPORT_FILEPATH_JSON, JSON.stringify(jsonReportData));
             fs.writeFileSync(FINAL_TEST_REPORT_FILEPATH_MARKDOWN, markdownReport);
-
-      - name: Upload final JSON test report as an artifact
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: final-test-report-json
-          path: ${{ env.FINAL_TEST_REPORT_FILEPATH_JSON }}
 
       - name: Upload final Markdown test report as an artifact
         if: always()
@@ -228,11 +217,11 @@ jobs:
         if: always()
         id: check_test_status
         env:
-          FINAL_TEST_REPORT_FILEPATH_JSON: ${{ env.FINAL_TEST_REPORT_FILEPATH_JSON }}
+          FINAL_TEST_REPORT_FILEPATH_MARKDOWN: ${{ env.FINAL_TEST_REPORT_FILEPATH_MARKDOWN }}
         run: |
-          REPORT=$(cat "$FINAL_TEST_REPORT_FILEPATH_JSON")
+          REPORT=$(cat "$FINAL_TEST_REPORT_FILEPATH_MARKDOWN")
           
-          if [[ "$REPORT" == *"failure"* ]]; then
+          if [[ "$REPORT" == *":x:"* ]]; then
             echo "INTEGRATION TESTS FAILED!"
             echo "##[set-output name=INTEGRATION_TESTS_FAILED;]true"
           fi
